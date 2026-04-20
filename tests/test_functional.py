@@ -85,3 +85,24 @@ def test_apartment_has_any_bills():
 
     has_bills = manager.has_any_bills('apart-polanka', 2025, 3)
     assert has_bills == False
+
+
+
+def test_transfer_boundary_validation():
+    manager = Manager(Parameters())
+
+    manager.min_transfer_amount = 10.0
+    manager.max_transfer_amount = 5000.0
+
+    manager.transfers = [
+        Transfer(amount_pln=5.0, date='2025-01-01', settlement_year=2025, settlement_month=1, tenant='tenant-1', type='rent'),
+        Transfer(amount_pln=1500.0, date='2025-01-02', settlement_year=2025, settlement_month=1, tenant='tenant-1', type='rent'),
+        Transfer(amount_pln=6000.0, date='2025-01-03', settlement_year=2025, settlement_month=1, tenant='tenant-1', type='rent')
+    ]
+
+    invalid_transfers = manager.get_invalid_transfers()
+
+    assert len(invalid_transfers) == 2
+    assert invalid_transfers[0].amount_pln == 5.0
+    assert invalid_transfers[1].amount_pln == 6000.0
+    
